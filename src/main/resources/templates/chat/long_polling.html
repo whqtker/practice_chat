@@ -1,10 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!-- 채팅 컨테이너 -->
+<div class="chat">
+    <!-- 메시지 작성 폼 -->
+    <form
+            class="chat__write-message"
+            onsubmit="Chat__writeMessage(this); return false;"
+    >
+        <input type="text" placeholder="작성자" name="name" />
+        <input type="text" placeholder="내용을 입력해주세요." name="content" />
+        <input type="submit" value="작성" />
+    </form>
+    <div class="chat__message-box">
+        <ul class="chat__message-ul"></ul>
+    </div>
+</div>
 
-</body>
-</html>
+<script>
+    // POST 요청을 보내는 유틸리티 함수
+    function fetchPost(url, data) {
+        return fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(data),
+        }).then((response) => response.json());
+    }
+
+    // Long Polling GET 요청을 보내는 유틸리티 함수
+    function fetchGetLongPolling(url, data) {
+        let query = Object.keys(data)
+            .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
+            .join("&");
+        
+        return fetch(url + "?" + query, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            // Long Polling을 위한 긴 타임아웃 설정
+            signal: AbortSignal.timeout(30000) // 30초 타임아웃
+        }).then((response) => response.json());
+    }
+
+    // 메시지 작성 처리 함수
+    function Chat__writeMessage(form) {
+        form.name.value = form.name.value.trim();
+        if (form.name.value.length == 0) {
+            alert("작성자를 입력해주세요.");
+            form.name.focus();
+            return;
+        }
+
+        form.content.value = form.content.value.trim();
+        if (form.content.value.length == 0) {
+            form.content.focus();
+            return;
+        }
+
+        fetchPost("/chat/write", {
+            name: form.name.value,
+            content: form.content.value,
+        }).then(console.log);
+
+        form.content.value = "";
+        form.content.focus();
+    }
+
+    let Chat__lastLoadedId = 0;
+    const Chat__elMessageUl = document.querySelector('.chat__message-ul');
+
+    // Long Polling을 사용한 메시지 로드 함수
+    function Chat__loadMore() {
+        fetchGetLongPolling("/chat/messages/long-polling", {
+            fromId: Chat__lastLoadedId
+        })
+        .then(body => {
+            if (body.chats && body.chats.length > 0) {
+                Chat__drawMessages(body.chats);
+            }
+        })
+        .catch(error => {
+            if (error.name === 'TimeoutError') {
+                console.log("Long polling timeout - starting new request");
+            } else {
+                console.error("Error in long polling:", error);
+            }
+        })
+        .finally(() => {
+            // 응답을 받은 후 즉시 다음 요청 시작
+            Chat__loadMore();
+        });
+    }
+
+    function Chat__drawMessages(messages) {
+        if (messages.length > 0) {
+            Chat__lastLoadedId = messages[messages.length - 1].id;
+            messages.forEach((message) => {
+                Chat__elMessageUl
+                    .insertAdjacentHTML(
+                        "afterBegin",
+                        `<li>${message.name} : ${message.content}</li>`
+                    );
+            });
+        }
+    }
+
+    // 초기 메시지 로드 시작
+    Chat__loadMore();
+</script>
