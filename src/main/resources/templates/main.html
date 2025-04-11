@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Implementation Examples</title>
+    <style>
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 300px;
+            margin: 50px auto;
+        }
+        
+        .nav-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .nav-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <a href="/chat/refresh" class="nav-button">Refresh 방식</a>
+        <a href="/chat/polling" class="nav-button">Polling 방식</a>
+        <a href="/chat/long-polling" class="nav-button">Long Polling 방식</a>
+        <a href="/chat/sse" class="nav-button">SSE 방식</a>
+        <a href="/chat/websocket" class="nav-button">WebSocket 방식</a>
+    </div>
+</body>
+</html>
