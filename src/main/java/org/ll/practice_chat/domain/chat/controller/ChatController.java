@@ -28,6 +28,18 @@ public class ChatController {
         );
     }
 
+    @PostMapping("/write-sse")
+    @ResponseBody
+    public ResponseEntity<ChatDto.WriteMessageResponse> writeMessageSSE(@RequestBody ChatDto.WriteMessageRequest writeMessageRequest) {
+        Chat chat = chatService.writeMessageSSE(writeMessageRequest.getName(), writeMessageRequest.getContent());
+
+        return ResponseEntity.ok(
+                ChatDto.WriteMessageResponse.builder()
+                        .chat(chat)
+                        .build()
+        );
+    }
+
     @GetMapping("/messages")
     @ResponseBody
     public ResponseEntity<ChatDto.MessagesResponse> messages(Long fromId) {
@@ -89,5 +101,15 @@ public class ChatController {
     @GetMapping("/long-polling")
     public String longPolling () {
         return "chat/long_polling";
+    }
+
+    @GetMapping("/sse")
+    public String sse () {
+        return "chat/sse";
+    }
+
+    @GetMapping("/websocket")
+    public String websocket () {
+        return "chat/websocket";
     }
 }
