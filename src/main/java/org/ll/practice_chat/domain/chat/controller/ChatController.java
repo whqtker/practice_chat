@@ -30,8 +30,20 @@ public class ChatController {
 
     @PostMapping("/write-sse")
     @ResponseBody
-    public ResponseEntity<ChatDto.WriteMessageResponse> writeMessageSSE(@RequestBody ChatDto.WriteMessageRequest writeMessageRequest) {
-        Chat chat = chatService.writeMessageSSE(writeMessageRequest.getName(), writeMessageRequest.getContent());
+    public ResponseEntity<ChatDto.WriteMessageResponse> writeMessageSse(@RequestBody ChatDto.WriteMessageRequest writeMessageRequest) {
+        Chat chat = chatService.writeMessageSse(writeMessageRequest.getName(), writeMessageRequest.getContent());
+
+        return ResponseEntity.ok(
+                ChatDto.WriteMessageResponse.builder()
+                        .chat(chat)
+                        .build()
+        );
+    }
+
+    @PostMapping("/write-websocket")
+    @ResponseBody
+    public ResponseEntity<ChatDto.WriteMessageResponse> writeMessageWebSocket(@RequestBody ChatDto.WriteMessageRequest writeMessageRequest) {
+        Chat chat = chatService.writeMessageWebSocket(writeMessageRequest.getName(), writeMessageRequest.getContent());
 
         return ResponseEntity.ok(
                 ChatDto.WriteMessageResponse.builder()
