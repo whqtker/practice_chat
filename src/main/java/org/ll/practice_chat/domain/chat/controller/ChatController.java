@@ -66,11 +66,9 @@ public class ChatController {
     @GetMapping("/messages/long-polling")
     @ResponseBody
     public ResponseEntity<ChatDto.MessagesResponse> longPollingMessages(Long fromId) throws InterruptedException {
-        int maxAttempts = 60; // 최대 60번 시도 (30초)
-        int attempt = 0;
         List<Chat> chats;
 
-        while (attempt < maxAttempts) {
+        while (true) {
             chats = chatService.getMessages(fromId);
 
             if (!chats.isEmpty()) {
@@ -82,17 +80,8 @@ public class ChatController {
                 );
             }
 
-            Thread.sleep(500); // 0.5초 대기
-            attempt++;
+            Thread.sleep(500);
         }
-
-        // 30초 동안 새 메시지가 없으면 빈 응답 반환
-        return ResponseEntity.ok(
-                ChatDto.MessagesResponse.builder()
-                        .chats(List.of())
-                        .totalCount(chatService.getTotalCount())
-                        .build()
-        );
     }
 
     @GetMapping("")

@@ -27,7 +27,7 @@
         }).then((response) => response.json());
     }
 
-    // Long Polling GET 요청을 보내는 유틸리티 함수
+    // Long Polling - GET
     function fetchGetLongPolling(url, data) {
         let query = Object.keys(data)
             .map((k) => encodeURIComponent(k) + "=" + encodeURIComponent(data[k]))
@@ -39,7 +39,7 @@
                 "Content-Type": "application/json",
                 Accept: "application/json",
             },
-            // Long Polling을 위한 긴 타임아웃 설정
+            // Long Polling 타임아웃 설정
             signal: AbortSignal.timeout(30000) // 30초 타임아웃
         }).then((response) => response.json());
     }
@@ -83,7 +83,7 @@
         })
         .catch(error => {
             if (error.name === 'TimeoutError') {
-                console.log("Long polling timeout - starting new request");
+                console.log("Long polling timeout");
             } else {
                 console.error("Error in long polling:", error);
             }
